@@ -1,1 +1,67 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+
+:root {
+  /* Colors from Historias Doradas Digitales */
+  --color-background: #fbfaee;
+  --color-on-background: #1b1c15;
+  
+  --color-primary: #000000;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #131b2e;
+  --color-on-primary-container: #7c839b;
+  
+  --color-secondary: #735c00;
+  --color-secondary-container: #fed65b;
+  --color-on-secondary-container: #745c00;
+  
+  --color-surface: #fbfaee;
+  --color-surface-container: #efeee3;
+  --color-surface-container-high: #e9e9dd;
+  --color-surface-container-highest: #e4e3d7;
+  --color-surface-container-low: #f5f4e8;
+  --color-surface-container-lowest: #ffffff;
+  
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  
+  --color-outline: #76777d;
+  --color-outline-variant: rgba(198, 198, 205, 0.15); /* Ghost Border Rule */
+
+  /* Typography */
+  --font-display: 'Newsreader', serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* Spacing & Radius */
+  --radius-xl: 12px; /* ~0.75rem as per design spec */
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-background);
+  color: var(--color-on-background);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--font-body);
+  transition: all 0.3s ease;
+}
+
+input {
+  font-family: var(--font-body);
+}
