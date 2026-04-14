@@ -29,12 +29,13 @@ function App() {
           <Route path="/stories/:id" element={<StoryDetail />} />
         </Routes>
       </AnimatePresence>
-      
+
       <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-h-cream via-h-cream/80 to-transparent pt-12 pb-6 px-6 pointer-events-none z-40">
         <div className="bg-h-navy text-h-cream/80 text-[10px] items-center justify-center font-bold tracking-[0.2em] uppercase py-2.5 px-6 rounded-full max-w-max mx-auto border border-h-cream/10 backdrop-blur-lg shadow-2xl">
           Legacy • Crónicas de Oro
         </div>
       </footer>
+      <h1>hola</h1>
     </div>
   );
 }
