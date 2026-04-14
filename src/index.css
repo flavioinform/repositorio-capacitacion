@@ -1,67 +1,52 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&display=swap');
+@import "tailwindcss";
 
-:root {
-  /* Colors from Historias Doradas Digitales */
-  --color-background: #fbfaee;
-  --color-on-background: #1b1c15;
-  
-  --color-primary: #000000;
-  --color-on-primary: #ffffff;
-  --color-primary-container: #131b2e;
-  --color-on-primary-container: #7c839b;
-  
-  --color-secondary: #735c00;
-  --color-secondary-container: #fed65b;
-  --color-on-secondary-container: #745c00;
-  
-  --color-surface: #fbfaee;
-  --color-surface-container: #efeee3;
-  --color-surface-container-high: #e9e9dd;
-  --color-surface-container-highest: #e4e3d7;
-  --color-surface-container-low: #f5f4e8;
-  --color-surface-container-lowest: #ffffff;
-  
-  --color-error: #ba1a1a;
-  --color-error-container: #ffdad6;
-  
-  --color-outline: #76777d;
-  --color-outline-variant: rgba(198, 198, 205, 0.15); /* Ghost Border Rule */
-
+@theme {
   /* Typography */
-  --font-display: 'Newsreader', serif;
-  --font-body: 'Inter', sans-serif;
+  --font-display: "Newsreader", serif;
+  --font-body: "Inter", sans-serif;
 
-  /* Spacing & Radius */
-  --radius-xl: 12px; /* ~0.75rem as per design spec */
-  --spacing-lg: 24px;
-  --spacing-xl: 32px;
+  /* Color Palette - Heritage Editorial */
+  --color-h-cream: #fbfaee;
+  --color-h-navy: #131b2e;
+  --color-h-gold: #d4af37;
+  --color-h-gold-muted: #735c00;
+  --color-h-stone: #f5f4e8;
+  
+  /* Semantic Tokens */
+  --color-background: var(--color-h-cream);
+  --color-foreground: var(--color-h-navy);
+  --color-primary: var(--color-h-navy);
+  --color-secondary: var(--color-h-gold);
+  --color-muted: var(--color-h-stone);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+
+  html, body {
+    @apply bg-h-cream text-h-navy font-body antialiased;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display font-medium;
+  }
+
+  /* Senior Accessibility: Focus on Large Tap Targets */
+  button, a {
+    @apply cursor-pointer touch-manipulation;
+  }
 }
 
-body {
-  font-family: var(--font-body);
-  background-color: var(--color-background);
-  color: var(--color-on-background);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, h4 {
-  font-family: var(--font-display);
-  font-weight: 600;
-}
-
-button {
-  cursor: pointer;
-  font-family: var(--font-body);
-  transition: all 0.3s ease;
-}
-
-input {
-  font-family: var(--font-body);
+@layer utilities {
+  .glass {
+    @apply bg-white/20 backdrop-blur-md border border-white/30;
+  }
+  
+  .safe-tap {
+    min-width: 48px;
+    min-height: 48px;
+  }
 }
