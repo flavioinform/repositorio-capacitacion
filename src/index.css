@@ -1,1 +1,52 @@
 @import "tailwindcss";
+
+@theme {
+  /* Typography */
+  --font-display: "Newsreader", serif;
+  --font-body: "Inter", sans-serif;
+
+  /* Color Palette - Heritage Editorial */
+  --color-h-cream: #fbfaee;
+  --color-h-navy: #131b2e;
+  --color-h-gold: #d4af37;
+  --color-h-gold-muted: #735c00;
+  --color-h-stone: #f5f4e8;
+  
+  /* Semantic Tokens */
+  --color-background: var(--color-h-cream);
+  --color-foreground: var(--color-h-navy);
+  --color-primary: var(--color-h-navy);
+  --color-secondary: var(--color-h-gold);
+  --color-muted: var(--color-h-stone);
+}
+
+@layer base {
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap');
+
+  html, body {
+    @apply bg-h-cream text-h-navy font-body antialiased;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display font-medium;
+  }
+
+  /* Senior Accessibility: Focus on Large Tap Targets */
+  button, a {
+    @apply cursor-pointer touch-manipulation;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/20 backdrop-blur-md border border-white/30;
+  }
+  
+  .safe-tap {
+    min-width: 48px;
+    min-height: 48px;
+  }
+}
