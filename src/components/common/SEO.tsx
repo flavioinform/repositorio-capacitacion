@@ -1,12 +1,19 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
-export const SEO = ({ title, description, image, url }) => {
+interface SEOProps {
+  title?: string;
+  description?: string;
+  image?: string;
+  url?: string;
+}
+
+export const SEO: React.FC<SEOProps> = ({ title, description, image, url }) => {
   const siteName = 'Legacy - Crónicas de Oro';
   const fullTitle = title ? `${title} | ${siteName}` : siteName;
   const siteDescription = description || 'Adultos mayores comparten sus historias de vida y legados en audio.';
   const siteUrl = url || window.location.href;
-  const siteImage = image || '/og-default.png'; // Fallback to a default image in public folder
+  const siteImage = image || '/og-default.png';
 
   return (
     <Helmet>

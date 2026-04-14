@@ -1,39 +1,56 @@
-import { useState, useEffect } from 'react';
-import { supabase } from './lib/supabase';
+import React from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Header } from './components/layout/Header';
+import { DiscoveryView } from './features/stories/DiscoveryView';
+import { StoryDetail } from './features/stories/StoryDetail';
+import { FavoritesView } from './features/favorites/FavoritesView';
+import { useAuth } from './context/AuthContext';
 import { AuthPage } from './features/auth/pages/AuthPage';
-import { HomePage } from './features/home/pages/HomePage';
-import './App.css';
+import { AnimatePresence } from 'framer-motion';
 
 function App() {
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Obtener sesión inicial
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
-
-    // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   if (loading) {
     return (
-      <div className="auth-container">
-        <div className="auth-subtitle">Cargando Historias Doradas...</div>
+      <div className="min-h-screen bg-h-cream flex items-center justify-center">
+        <div className="text-h-navy font-display text-2xl animate-pulse italic">
+          Crónicas de Oro...
+        </div>
       </div>
     );
   }
 
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  const handleNavigate = (view: 'discovery' | 'favorites') => {
+    if (view === 'discovery') navigate('/');
+    if (view === 'favorites') navigate('/favorites');
+  };
+
+  const currentView = location.pathname === '/favorites' ? 'favorites' : 'discovery';
+
   return (
-    <div className="app">
-      {session ? <HomePage user={session.user} /> : <AuthPage />}
+    <div className="min-h-screen bg-h-cream pb-12 transition-colors duration-500 overflow-x-hidden">
+      <Header onNavigate={handleNavigate} currentView={currentView} />
+
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          <Route path="/" element={<DiscoveryView />} />
+          <Route path="/favorites" element={<FavoritesView onNavigate={handleNavigate} />} />
+          <Route path="/stories/:id" element={<StoryDetail />} />
+        </Routes>
+      </AnimatePresence>
+
+      <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-h-cream via-h-cream/80 to-transparent pt-12 pb-6 px-6 pointer-events-none z-40">
+        <div className="bg-h-navy text-h-cream/80 text-[10px] items-center justify-center font-bold tracking-[0.2em] uppercase py-2.5 px-6 rounded-full max-w-max mx-auto border border-h-cream/10 backdrop-blur-lg shadow-2xl">
+          Legacy • Crónicas de Oro
+        </div>
+      </footer>
     </div>
   );
 }

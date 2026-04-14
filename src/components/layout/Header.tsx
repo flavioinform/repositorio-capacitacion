@@ -1,5 +1,6 @@
 import React from 'react';
-import { Bookmark, User, Menu } from 'lucide-react';
+import { Bookmark, LogOut, Menu } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 interface HeaderProps {
   onNavigate: (view: 'discovery' | 'favorites') => void;
@@ -7,6 +8,12 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
     <header className="sticky top-0 z-50 bg-h-cream/80 backdrop-blur-md border-b border-h-navy/10 px-6 py-4 flex items-center justify-between">
       <div className="flex items-center gap-4">
@@ -31,8 +38,13 @@ export const Header: React.FC<HeaderProps> = ({ onNavigate, currentView }) => {
         >
           <Bookmark className="w-6 h-6" />
         </button>
-        <button className="p-2 hover:bg-h-stone text-h-navy rounded-full transition-all">
-          <User className="w-6 h-6" />
+        <button 
+          onClick={handleSignOut}
+          className="p-2 hover:bg-red-50 text-h-navy/60 hover:text-red-500 rounded-full transition-all"
+          aria-label="Cerrar sesión"
+          title="Cerrar sesión"
+        >
+          <LogOut className="w-5 h-5" />
         </button>
       </div>
     </header>

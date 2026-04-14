@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Headphones, Lock, Play, Pause, ChevronLeft, Share2 } from 'lucide-react';
@@ -6,16 +6,27 @@ import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabaseClient';
 import { SEO } from '../../components/common/SEO';
 
-export const StoryDetail = () => {
-  const { id } = useParams();
+interface StoryData {
+  id: string;
+  title: string;
+  description_short: string;
+  description_full: string;
+  preview_audio_url: string;
+  full_audio_path: string;
+  thumbnail_url: string;
+}
+
+export const StoryDetail: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user, isSubscribed, loading: authLoading } = useAuth();
-  
-  const [story, setStory] = useState(null);
+  const { isSubscribed, loading: authLoading } = useAuth();
+
+  const [story, setStory] = useState<StoryData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [fullAudioUrl, setFullAudioUrl] = useState(null);
+  const [fullAudioUrl, setFullAudioUrl] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     fetchStory();
@@ -23,17 +34,16 @@ export const StoryDetail = () => {
 
   const fetchStory = async () => {
     setLoading(true);
-    const { data, error } = await supabase
+    const { data, error: fetchError } = await supabase
       .from('stories')
       .select('*')
       .eq('id', id)
       .single();
 
-    if (error) {
+    if (fetchError) {
       setError('No pudimos encontrar esta historia.');
     } else {
-      setStory(data);
-      // If subscribed, get the signed URL
+      setStory(data as StoryData);
       if (isSubscribed) {
         fetchSignedUrl(data.id);
       }
@@ -41,13 +51,13 @@ export const StoryDetail = () => {
     setLoading(false);
   };
 
-  const fetchSignedUrl = async (storyId) => {
+  const fetchSignedUrl = async (storyId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-audio-url', {
+      const { data, error: fnError } = await supabase.functions.invoke('get-audio-url', {
         body: { storyId },
       });
 
-      if (error) throw error;
+      if (fnError) throw fnError;
       setFullAudioUrl(data.signedUrl);
     } catch (err) {
       console.error('Error fetching signed URL:', err);
@@ -57,14 +67,24 @@ export const StoryDetail = () => {
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: story.title,
-        text: story.description_short,
+        title: story?.title,
+        text: story?.description_short,
         url: window.location.href,
       });
     } else {
-      // Fallback: Copy to clipboard
       navigator.clipboard.writeText(window.location.href);
       alert('¡Enlace copiado al portapapeles!');
+    }
+  };
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -88,34 +108,34 @@ export const StoryDetail = () => {
   }
 
   return (
-    <motion.div 
-      initial={{ opacity: 0 }} 
+    <motion.div
+      initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="min-h-screen bg-h-cream pb-20"
     >
-      <SEO 
-        title={story.title} 
-        description={story.description_short} 
-        image={story.thumbnail_url} 
+      <SEO
+        title={story.title}
+        description={story.description_short}
+        image={story.thumbnail_url}
       />
 
       {/* Hero Section */}
       <section className="relative h-[60vh] overflow-hidden">
-        <img 
-          src={story.thumbnail_url || 'https://images.unsplash.com/photo-1506806732259-39c2d4a78ae7'} 
-          className="w-full h-full object-cover" 
+        <img
+          src={story.thumbnail_url || 'https://images.unsplash.com/photo-1506806732259-39c2d4a78ae7'}
+          className="w-full h-full object-cover"
           alt={story.title}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-h-cream via-h-cream/20 to-transparent" />
-        
-        <button 
+
+        <button
           onClick={() => navigate('/')}
           className="absolute top-12 left-6 p-3 bg-white/20 backdrop-blur-md rounded-full shadow-lg safe-tap"
         >
           <ChevronLeft className="w-6 h-6 text-h-navy" />
         </button>
 
-        <button 
+        <button
           onClick={handleShare}
           className="absolute top-12 right-6 p-3 bg-white/20 backdrop-blur-md rounded-full shadow-lg safe-tap"
         >
@@ -147,16 +167,16 @@ export const StoryDetail = () => {
               <h3 className="text-sm font-black uppercase tracking-widest opacity-40 mb-6 flex items-center gap-2">
                 <Headphones className="w-4 h-4" /> Fragmento de Prueba
               </h3>
-              
+
               <div className="flex items-center gap-6">
-                <button 
+                <button
                   className="w-16 h-16 bg-h-navy text-h-cream rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlay}
                 >
                   {isPlaying ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6 ml-1" />}
                 </button>
                 <div className="flex-grow h-1.5 bg-h-navy/10 rounded-full overflow-hidden">
-                  <motion.div 
+                  <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: isPlaying ? '100%' : '0%' }}
                     transition={{ duration: 30, ease: "linear" }}
@@ -164,18 +184,17 @@ export const StoryDetail = () => {
                   />
                 </div>
               </div>
-              <audio 
-                src={story.preview_audio_url} 
-                onEnded={() => setIsPlaying(false)} 
-                autoPlay={false} 
-                ref={(el) => { if (el) isPlaying ? el.play() : el.pause() }}
+              <audio
+                ref={audioRef}
+                src={story.preview_audio_url}
+                onEnded={() => setIsPlaying(false)}
               />
             </div>
 
             {/* Restricted Content */}
             <AnimatePresence mode="wait">
               {isSubscribed ? (
-                <motion.div 
+                <motion.div
                   key="subscribed"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -187,11 +206,11 @@ export const StoryDetail = () => {
                       <p className="text-h-cream/80 leading-relaxed mb-8 text-lg font-display italic">
                         {story.description_full}
                       </p>
-                      
+
                       {fullAudioUrl ? (
-                         <div className="flex items-center gap-4 p-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm">
-                            <span className="text-sm font-bold tracking-widest text-h-gold uppercase">Audio Full Disponible</span>
-                         </div>
+                        <div className="flex items-center gap-4 p-4 bg-white/10 rounded-2xl border border-white/10 backdrop-blur-sm">
+                          <span className="text-sm font-bold tracking-widest text-h-gold uppercase">Audio Full Disponible</span>
+                        </div>
                       ) : (
                         <p className="text-xs opacity-50">Cargando audio premium...</p>
                       )}
@@ -200,7 +219,7 @@ export const StoryDetail = () => {
                   </div>
                 </motion.div>
               ) : (
-                <motion.div 
+                <motion.div
                   key="unsubscribed"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -223,7 +242,7 @@ export const StoryDetail = () => {
       </main>
 
       <footer className="mt-20 text-center px-6">
-         <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Legacy • Crónicas de Oro</p>
+        <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-30">Legacy • Crónicas de Oro</p>
       </footer>
     </motion.div>
   );
